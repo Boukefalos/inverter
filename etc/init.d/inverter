@@ -1,0 +1,20 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides: inverter
+# Required-Start: $network
+# Required-Stop: $network
+# Default-Start: 2 3 5
+# Description: 
+### END INIT INFO
+
+case "$1" in
+'start')
+	/opt/inverter/start.sh
+	;;
+'stop')
+	;;
+*)
+	echo "Usage: $0 { start | stop }"
+	;;
+esac
+exit 0
