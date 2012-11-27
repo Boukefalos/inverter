@@ -64,9 +64,6 @@ $aToday[1] += $fEnergy / 1000 / 3600;
 $aToday[2] = $iTime;
 file_put_contents($sTodayFile, implode(',', $aToday));
 
-/* Test */
-file_put_contents('test', sprintf("[%s],%d,%s,%f,%f,%f,%f\n", date('r'), time(), $sSerial, $fToday, $fPower, $aToday[1], $fVoltage), FILE_APPEND);
-
 /* Correct today data */
 $fToday = $aToday[1] > ((1 + MARGIN) * $fEnergy) ? $fEnergy : $aToday[1];
 
@@ -86,5 +83,4 @@ if (isset($aSystems[$sSerial])) {
             'v6' => $fVoltage)),
             CURLOPT_RETURNTRANSFER => true));
     $sResult = curl_exec($rCurl);
-    file_put_contents('pvtest', sprintf("[%s] %s\n", date('r'), $sResult), FILE_APPEND);
 }
