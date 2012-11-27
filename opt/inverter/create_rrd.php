@@ -1,6 +1,5 @@
-#!/usr/local/bin/php
+#!/usr/bin/php
 <?php
-$aRRDFile = 'today.rrd';
 $sDataDirectory = 'data';
 $aRRDCreate = array(
     'inverter.rrd' => 'create %s

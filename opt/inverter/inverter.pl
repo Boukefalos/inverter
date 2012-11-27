@@ -30,7 +30,7 @@
 #          + added %HoH, %HASH
 #          + added writeToPort() & added warnings to readbuf()
 #          + edited calc of sleep so dont have to keep DATAPOLL_FREQ_SECS set to 60.
-#          + edited pvoutput code so dont have to keep DATAPOLL_FREQ_SECS set to 60.
+#          + edited  code so dont have to keep DATAPOLL_FREQ_SECS set to 60.
 #          + added DESCR to $HoH hash of hashes & used in parseDataFmt()
 #          + added check if ( $seconds > 0 ) before 'sleep $seconds'
 #          + added DESCR to parseData() & replaced die with warning in writeToFile()
@@ -99,6 +99,7 @@ $config->define( "secs_reinit=s"         );
 $config->define( "paths_windows=s"       );
 $config->define( "paths_other=s"         );
 $config->define( "scripts_pvoutput=s"    );
+$config->define( "scripts_pvoutput_php=s");
 $config->define( "scripts_create_rrd=s"  );
 $config->define( "scripts_rrdtool_exe_win=s" );
 $config->define( "scripts_rrdtool_exe_oth=s" );
@@ -979,8 +980,9 @@ sub getErrFileName {
 #
 # Return RRD File Name: [path]/inverter_[serial#].rrd
 #
-sub getRrdFileName {
+sub getRrdFileName(@) {
   my $rrdfile = "";
+  my $suffix = shift;
 
   #
   # set path
@@ -995,7 +997,7 @@ sub getRrdFileName {
   #
   # append filename
   #
-  $rrdfile .= "/inverter_" . $HASH{SERIAL} . ".rrd";
+  $rrdfile .= "/inverter_" . $HASH{SERIAL} . (defined $suffix ? ("_" . $suffix) : "") . ".rrd";
   return $rrdfile;
 }
 
@@ -1454,7 +1456,7 @@ sub writeToFile() {
     if ($config->flags_use_rrdtool) {
 
       my $rrdexe  = $config->scripts_rrdtool_exe_oth;   # Unix/Linux/other
-      if ($^O eq 'MSWin32') {                # Win32 (ActivePerl)
+      if ($^O eq 'MSWin32') {                           # Win32 (ActivePerl)
          $rrdexe  = $config->scripts_rrdtool_exe_win;
       }
 
@@ -1477,11 +1479,18 @@ sub writeToFile() {
                     "$HoH{FAC}{VALUE}:"     .
                     "$HoH{PAC}{VALUE}:"     .
                     "$etotal:"              .
-                    "$htotal:"              .
-                    "$HoH{MODE}{VALUE}:"    .
                     "$HoH{ETODAY}{VALUE}";
       print "Ran: $rrdexe update $rrdfile $rrdLine\n";
       system( "$rrdexe update $rrdfile $rrdLine" );
+      
+      $rrdfile = getRrdFileName("today");
+      if (-e $rrdfile) {
+        $rrdLine = "$unixTimeStamp:"       .
+                   "$HoH{PAC}{VALUE}:"     .
+                   "$HoH{ETODAY}{VALUE}";
+        print "Ran: $rrdexe update $rrdfile $rrdLine\n";
+        system( "$rrdexe update $rrdfile $rrdLine" );
+      }
     }
 
   }
@@ -1559,11 +1568,13 @@ while (1) {
   if ($config->flags_use_pvoutput) {
     $nextPvoutputTime = $lastPvoutputTime + $config->secs_pvoutput_freq;
     if ( $lastPvoutputTime == 0 || $nextPvoutputTime <= time ) {
-      my $date = getDate_YYYYMMDD(time);
-      my $time = getTime_HHMM(time);
-      print "PVOUTPUT as at " . getDateTime(time) . " ...\n";
-      print "  ran: " . $config->scripts_pvoutput . " " . ($HoH{ETODAY}{VALUE} * 1000) . "$HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $date $time $HASH{SERIAL}\n";
-      system ($config->scripts_pvoutput . " " . ($HoH{ETODAY}{VALUE} * 1000) . " $HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $date $time $HASH{SERIAL}" );
+      #my $date = getDate_YYYYMMDD(time);
+      #my $time = getTime_HHMM(time);
+      #print "PVOUTPUT as at " . getDateTime(time) . " ...\n";
+      #print "  ran: " . $config->scripts_pvoutput . " " . ($HoH{ETODAY}{VALUE} * 1000) . " $HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $date $time $HASH{SERIAL}\n";
+      #system ($config->scripts_pvoutput . " " . ($HoH{ETODAY}{VALUE} * 1000) . " $HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $date $time $HASH{SERIAL}" );
+      print "  ran: " . $config->scripts_pvoutput_php . " $HoH{ETODAY}{VALUE} $HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $HASH{SERIAL}\n";
+      system ($config->scripts_pvoutput_php . " $HoH{ETODAY}{VALUE} $HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $HASH{SERIAL}");
       $lastPvoutputTime = time;
     }
   }
