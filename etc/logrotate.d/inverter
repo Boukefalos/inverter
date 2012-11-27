@@ -1,0 +1,11 @@
+/var/log/inverter.log {
+   rotate 15
+   compress
+   missingok
+   notifempty
+   sharedscripts
+   size 5M
+   postrotate
+       /bin/kill -HUP `cat /var/run/inverter/inverter.pid 2>/dev/null` 2> /dev/null || true
+   endscript
+}

@@ -88,39 +88,3 @@ if (isset($aSystems[$sSerial])) {
     $sResult = curl_exec($rCurl);
     file_put_contents('pvtest', sprintf("[%s] %s\n", date('r'), $sResult), FILE_APPEND);
 }
-
-/*
-$a = file_get_contents('test');
-$b = explode("\n", $a);
-array_pop($b);
-foreach ($b as $c) {
-	$d = explode(',', $c);
-    $iTime = $d[2];
-	$fToday = $d[4];
-    $fEnergy = $d[6];
-    $fToday = $fToday > ((1 + MARGIN) * $fEnergy) ? $fEnergy : $fToday;
-
-	$fPower = $d[5];
-	$sSerial = $d[3];
-    
-    $e = sprintf("%s,%s,%s\n", date('H:i', $iTime), $fToday * 1000, $fPower);
-    file_put_contents('do.csv', $e, FILE_APPEND);
-
-    
-    /*
-    $rCurl = curl_init();
-    curl_setopt_array($rCurl, array(
-        CURLOPT_URL => PVOUTPUT_URL,
-        CURLOPT_HTTPHEADER => array(
-            sprintf('X-Pvoutput-Apikey: %s', $aSystems[$sSerial][0]),
-            sprintf('X-Pvoutput-SystemId: %s',  $aSystems[$sSerial][1])),
-        CURLOPT_POSTFIELDS => http_build_query(array(
-            'd' => date('Ymd', $iTime),
-            't' => date('H:i', $iTime),
-            'v1' => 1000 * $fToday, // Wh
-            'v2' => $fPower)),
-            CURLOPT_RETURNTRANSFER => true));
-    echo $sResult = curl_exec($rCurl);
-    sleep(61);*
-}
-exit;*/
