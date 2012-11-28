@@ -54,7 +54,7 @@ System_Daemon::info(sprintf('Be awake between %s and %s', $sWake, $sSleep));
 
 /* Start deamon */
 System_Daemon::start();
-$bStop = false;
+$bStop = $bAlarm = false;
 while (!$bStop && !System_Daemon::isDying()) {
     /* Check for current need to be awake */
     $fNow = getHour();
@@ -66,8 +66,11 @@ while (!$bStop && !System_Daemon::isDying()) {
 
     if ($bAwake && !$bSleep) {
         /* Schedule next sleep time */
-        $sTime = date('H:i', strtotime($sWake));
-        command(sprintf('at -f %s %s 2> /dev/null', FILE_DAEMON_STOP, $sTime));
+        if (!$bAlarm) {
+            $sTime = date('H:i', strtotime($sSleep));
+            command(sprintf('at -f %s %s 2> /dev/null', FILE_DAEMON_STOP, $sTime));
+            $bAlarm = true;
+        }
 
         /* Execute task */
         System_Daemon::info('Running task');
