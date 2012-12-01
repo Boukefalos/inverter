@@ -1,23 +1,33 @@
 #!/usr/bin/php
 <?php
 require_once 'functions.php';
+require_once 'wunderground.php';
 
+define('STATION', 'INOORDHO4');
 define('RRD_FILE', 'data/inverter_%s_today.rrd');
 define('RRD_FETCH', 'rrdtool fetch %s AVERAGE -r %d -s %d -e %d');
 define('PVOUTPUT_URL', 'http://pvoutput.org/service/r1/addstatus.jsp');
 define('TODAY_FILE', 'data/today_%s.csv');
 define('FIELD', 'PAC');
 define('RESOLUTION', 5);
-define('MARGIN', 0.1);
+define('MARGIN_ENERGY', 0.1);
+define('MARGIN_TEMPERATURE', 0.2);
 $aSystems = array(
     '1204DQ0116' => array('16e7a916d69656e354d00461a4da1d2e40cfa4f1', '12419')
 );
+
+/* Fake command line for debugging */
+//$argv = array(null, 1.5, 1234, 230, '1204DQ0116');
 
 /* Fetch command line arguments */
 $fToday = floatval($argv[1]);
 $fPower = floatval($argv[2]);
 $fVoltage = floatval($argv[3]);
 $sSerial = $argv[4];
+
+/* Fetch temperature */
+$aData = wunderground('conditions', sprintf('pws:%s', STATION));
+$fTemperature = isset($aData['current_observation']['temp_c']) ? $aData['current_observation']['temp_c'] : null;
 
 /* Fetch twilight data */
 $iDay = date('z');
@@ -27,10 +37,10 @@ $aTwilight = getTwilight(date('Y'), $iDay);
 $sTodayFile = sprintf(TODAY_FILE, $sSerial);
 $aToday = array();
 if (file_exists($sTodayFile)) {
-    $aToday = explode(',', file_get_contents($sTodayFile));    
+    $aToday = explode(',', file_get_contents($sTodayFile));
 }
 if (count($aToday) != 3 || $aToday[0] != $iDay) {
-    $aToday = array($iDay, 0, strtotime($aTwilight[1]));
+    $aToday = array($iDay, 0, strtotime($aTwilight[1]), null);
 }
 $iLast = $aToday[2];
 
@@ -52,7 +62,7 @@ if (isset($aFields[FIELD])) {
         $aRow = explode(' ', $sRow);
         $iDate = substr($aRow[0], 0, -1);
         $iInterval = $bFirst ? (($bFirst = false) || RESOLUTION) : $iDate - $iLast;
-        if (($fValue = floatval($aRow[$iField])) > 0) {        
+        if (($fValue = floatval($aRow[$iField])) > 0) {
             $fEnergy += $iInterval * $fValue;
         }
         $iLast = $iDate;
@@ -62,10 +72,30 @@ if (isset($aFields[FIELD])) {
 /* Store today data */
 $aToday[1] += $fEnergy / 1000 / 3600;
 $aToday[2] = $iTime;
+$aToday[3] = $fTemperature;
 file_put_contents($sTodayFile, implode(',', $aToday));
 
 /* Correct today data */
-$fToday = $aToday[1] > ((1 + MARGIN) * $fEnergy) ? $fEnergy : $aToday[1];
+$fToday = $fToday > ((1 + MARGIN_ENERGY) * $aToday[1]) ? $aToday[1] : $fToday;
+
+/* Construct PVOutput data */
+$aData = array(
+    'd' => date('Ymd', $iTime),
+    't' => date('H:i', $iTime),
+    'v1' => 1000 * $fToday, // Wh
+    'v2' => $fPower,
+    'v6' => $fVoltage);
+
+/* Add (corrected) temperature when available */
+if (isset($fTemperature)) {
+    if (isset($aToday[3])) {
+        $fTemperature = abs($aToday[3] - $fTemperature) > (MARGIN_TEMPERATURE * $aToday[3]) ? $aToday[3] : $fTemperature;
+    }
+    $aData['v5'] = $fTemperature; // ignore potential flaws in first temperature of the day
+}
+
+/* Store debug data */
+file_put_contents('pvoutput.debug', array(json_encode($argv), json_encode($aData)) . "\n", FILE_APPEND);
 
 /* Send data to PVOutput */
 if (isset($aSystems[$sSerial])) {
@@ -75,12 +105,7 @@ if (isset($aSystems[$sSerial])) {
         CURLOPT_HTTPHEADER => array(
             sprintf('X-Pvoutput-Apikey: %s', $aSystems[$sSerial][0]),
             sprintf('X-Pvoutput-SystemId: %s',  $aSystems[$sSerial][1])),
-        CURLOPT_POSTFIELDS => http_build_query(array(
-            'd' => date('Ymd', $iTime),
-            't' => date('H:i', $iTime),
-            'v1' => 1000 * $fToday, // Wh
-            'v2' => $fPower,
-            'v6' => $fVoltage)),
+        CURLOPT_POSTFIELDS => http_build_query($aData),
             CURLOPT_RETURNTRANSFER => true));
     $sResult = curl_exec($rCurl);
 }
