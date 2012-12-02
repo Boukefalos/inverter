@@ -62,7 +62,7 @@ if (isset($aFields[FIELD])) {
     foreach ($aData as $sRow) {
         $aRow = explode(' ', $sRow);
         $iDate = substr($aRow[0], 0, -1);
-        $iInterval = $bFirst ? (($bFirst = false) || RESOLUTION) : $iDate - $iLast;
+        $iInterval = $bFirst ? (($bFirst = false) || RESOLUTION) : $iDate - $iLast; // s
         if (($fValue = floatval($aRow[$iField])) > 0) { // W
             $fEnergy += $iInterval * $fValue; // Ws
         }
@@ -96,7 +96,7 @@ if (isset($fTemperature)) {
 }
 
 /* Store debug data */
-file_put_contents('pvoutput.debug', json_encode(array($argv, $aData)) . "\n", FILE_APPEND);
+file_put_contents('pvoutput.debug', json_encode(array($argv, $fEnergy, $aToday, $aData)) . "\n", FILE_APPEND);
 
 /* Send data to PVOutput */
 if (isset($aSystems[$sSerial])) {
