@@ -1573,8 +1573,8 @@ while (1) {
       #print "PVOUTPUT as at " . getDateTime(time) . " ...\n";
       #print "  ran: " . $config->scripts_pvoutput . " " . ($HoH{ETODAY}{VALUE} * 1000) . " $HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $date $time $HASH{SERIAL}\n";
       #system ($config->scripts_pvoutput . " " . ($HoH{ETODAY}{VALUE} * 1000) . " $HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $date $time $HASH{SERIAL}" );
-      print "  ran: " . $config->scripts_pvoutput_php . " $HoH{ETODAY}{VALUE} $HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $HASH{SERIAL}\n";
-      system ($config->scripts_pvoutput_php . " $HoH{ETODAY}{VALUE} $HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $HASH{SERIAL}");
+      print "  ran: " . $config->scripts_pvoutput_php . " " . ($HoH{ETODAY}{VALUE} * 1000) . " $HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $HASH{SERIAL}\n";
+      system ($config->scripts_pvoutput_php . " " . ($HoH{ETODAY}{VALUE} * 1000) . " $HoH{PAC}{VALUE} $HoH{VAC}{VALUE} $HASH{SERIAL} &");
       $lastPvoutputTime = time;
     }
   }

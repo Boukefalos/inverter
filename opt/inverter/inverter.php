@@ -14,10 +14,10 @@ define('DEFAULT_SLEEP', '19:00');
 chdir(CWD);
 
 /* Remove previous at entries */
-foreach (explode("\n", trim(command('atq'))) as $sJob) {
+foreach (explode("\n", trim(command('atq 2> /dev/null'))) as $sJob) {
     $sId = substr($sJob, 0, strpos($sJob, "\t"));
-    $sJob = command(sprintf('at -c %s ' . "\n", $sId));
-    $aJob = explode("\n", trim(command(sprintf('at -c %s', $sId))));
+    $sJob = command(sprintf('at -c %s 2> /dev/null' . "\n", $sId));
+    $aJob = explode("\n", trim(command(sprintf('at -c %s 2> /dev/null', $sId))));
     if (strpos(array_pop($aJob), NAME) !== false) {
         command(sprintf('atrm %s', $sId));
     }
@@ -55,6 +55,7 @@ System_Daemon::info(sprintf('Be awake between %s and %s', $sWake, $sSleep));
 /* Start deamon */
 System_Daemon::start();
 $bStop = $bAlarm = false;
+
 while (!$bStop && !System_Daemon::isDying()) {
     /* Check for current need to be awake */
     $fNow = getHour();
@@ -77,13 +78,19 @@ while (!$bStop && !System_Daemon::isDying()) {
         command(TASK);
         System_Daemon::info('Task ended');
     } else {
-        /* Schedule next wake time */            
-        $sTime = date('H:i', strtotime($sWake)); // ignore slight deviation for next day
-        command(sprintf('at -f %s %s 2> /dev/null', FILE_DAEMON_START, $sTime));
-        System_Daemon::info(sprintf('Waiting untill %s', $sTime));
+        /* Schedule next wake time */
+        schedule_wake();
         $bStop = true;
     }
 }
 
 /* Stop daemon */
 System_Daemon::stop();
+
+schedule_wake();
+function schedule_wake() {
+    global $sWake;
+    $sTime = date('H:i', strtotime($sWake)); // ignore slight deviation for next day
+    System_Daemon::info(sprintf('Waiting untill %s', $sTime));
+    command(sprintf('at -f %s %s 2> /dev/null', FILE_DAEMON_START, $sTime));
+}

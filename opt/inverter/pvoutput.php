@@ -10,8 +10,8 @@ define('PVOUTPUT_URL', 'http://pvoutput.org/service/r1/addstatus.jsp');
 define('TODAY_FILE', 'data/today_%s.csv');
 define('FIELD', 'PAC');
 define('RESOLUTION', 5);
-define('MARGIN_ENERGY', 0.1);
-define('MARGIN_TEMPERATURE', 0.2);
+define('MARGIN_ENERGY', 0.5);
+define('MARGIN_TEMPERATURE', 0.4);
 $aSystems = array(
     '1204DQ0116' => array('16e7a916d69656e354d00461a4da1d2e40cfa4f1', '12419')
 );
@@ -20,9 +20,9 @@ $aSystems = array(
 //$argv = array(null, 1.5, 1234, 230, '1204DQ0116');
 
 /* Fetch command line arguments */
-$fToday = floatval($argv[1]);
-$fPower = floatval($argv[2]);
-$fVoltage = floatval($argv[3]);
+$fToday = floatval($argv[1]);   // Wh
+$fPower = floatval($argv[2]);   // W
+$fVoltage = floatval($argv[3]); // V
 $sSerial = $argv[4];
 
 /* Fetch temperature */
@@ -38,6 +38,7 @@ $sTodayFile = sprintf(TODAY_FILE, $sSerial);
 $aToday = array();
 if (file_exists($sTodayFile)) {
     $aToday = explode(',', file_get_contents($sTodayFile));
+    $aToday[1] = floatval($aToday[1]);
 }
 if (count($aToday) != 3 || $aToday[0] != $iDay) {
     $aToday = array($iDay, 0, strtotime($aTwilight[1]), null);
@@ -62,15 +63,15 @@ if (isset($aFields[FIELD])) {
         $aRow = explode(' ', $sRow);
         $iDate = substr($aRow[0], 0, -1);
         $iInterval = $bFirst ? (($bFirst = false) || RESOLUTION) : $iDate - $iLast;
-        if (($fValue = floatval($aRow[$iField])) > 0) {
-            $fEnergy += $iInterval * $fValue;
+        if (($fValue = floatval($aRow[$iField])) > 0) { // W
+            $fEnergy += $iInterval * $fValue; // Ws
         }
         $iLast = $iDate;
-    }    
+    }
 }
 
 /* Store today data */
-$aToday[1] += $fEnergy / 1000 / 3600;
+$aToday[1] += $fEnergy / 3600; // Wh
 $aToday[2] = $iTime;
 $aToday[3] = $fTemperature;
 file_put_contents($sTodayFile, implode(',', $aToday));
@@ -82,9 +83,9 @@ $fToday = $fToday > ((1 + MARGIN_ENERGY) * $aToday[1]) ? $aToday[1] : $fToday;
 $aData = array(
     'd' => date('Ymd', $iTime),
     't' => date('H:i', $iTime),
-    'v1' => 1000 * $fToday, // Wh
-    'v2' => $fPower,
-    'v6' => $fVoltage);
+    'v1' => $fToday,    // Wh
+    'v2' => $fPower,    // W
+    'v6' => $fVoltage); // V
 
 /* Add (corrected) temperature when available */
 if (isset($fTemperature)) {
@@ -95,7 +96,7 @@ if (isset($fTemperature)) {
 }
 
 /* Store debug data */
-file_put_contents('pvoutput.debug', array(json_encode($argv), json_encode($aData)) . "\n", FILE_APPEND);
+file_put_contents('pvoutput.debug', json_encode(array($argv, $aData)) . "\n", FILE_APPEND);
 
 /* Send data to PVOutput */
 if (isset($aSystems[$sSerial])) {
