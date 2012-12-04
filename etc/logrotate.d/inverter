@@ -1,5 +1,5 @@
 /var/log/inverter.log {
-   rotate 15
+   rotate 5
    compress
    missingok
    notifempty

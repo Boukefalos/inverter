@@ -69,6 +69,7 @@ while (!$bStop && !System_Daemon::isDying()) {
         /* Schedule next sleep time */
         if (!$bAlarm) {
             $sTime = date('H:i', strtotime($sSleep));
+            System_Daemon::info(sprintf('Schedule sleep at %s', $sTime));
             command(sprintf('at -f %s %s 2> /dev/null', FILE_DAEMON_STOP, $sTime));
             $bAlarm = true;
         }
@@ -77,17 +78,17 @@ while (!$bStop && !System_Daemon::isDying()) {
         System_Daemon::info('Running task');
         command(TASK);
         System_Daemon::info('Task ended');
-    } else {
-        /* Schedule next wake time */
-        schedule_wake();
+    } else  {
         $bStop = true;
     }
 }
 
+/* Schedule next wake time */
+schedule_wake();
+
 /* Stop daemon */
 System_Daemon::stop();
 
-schedule_wake();
 function schedule_wake() {
     global $sWake;
     $sTime = date('H:i', strtotime($sWake)); // ignore slight deviation for next day
