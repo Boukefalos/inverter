@@ -17,7 +17,9 @@ $aSystems = array(
 );
 
 /* Fake command line for debugging */
-//$argv = array(null, 1.5, 1234, 230, '1204DQ0116');
+if (count($argv) < 5) {
+    $argv = array(null, 1.5, 1234, 230, '1204DQ0116');
+}
 
 /* Fetch command line arguments */
 $fToday = floatval($argv[1]);   // Wh
@@ -77,7 +79,7 @@ $aToday[3] = $fTemperature;
 file_put_contents($sTodayFile, implode(',', $aToday));
 
 /* Correct today data */
-$fToday = $fToday > ((1 + MARGIN_ENERGY) * $aToday[1]) ? $aToday[1] : $fToday;
+$fToday = abs($aToday[1] - $fToday) > (MARGIN_ENERGY * $aToday[1]) ? $aToday[1] : $fToday;
 
 /* Construct PVOutput data */
 $aData = array(

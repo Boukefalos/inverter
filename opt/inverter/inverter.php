@@ -67,12 +67,12 @@ while (!$bStop && !System_Daemon::isDying()) {
 
     if ($bAwake && !$bSleep) {
         /* Schedule next sleep time */
-        if (!$bAlarm) {
+        /*if (!$bAlarm) {
             $sTime = date('H:i', strtotime($sSleep));
             System_Daemon::info(sprintf('Schedule sleep at %s', $sTime));
             command(sprintf('at -f %s %s 2> /dev/null', FILE_DAEMON_STOP, $sTime));
             $bAlarm = true;
-        }
+        }*/
 
         /* Execute task */
         System_Daemon::info('Running task');
