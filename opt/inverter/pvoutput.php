@@ -13,12 +13,12 @@ define('RESOLUTION', 5);
 define('MARGIN_ENERGY', 0.5);
 define('MARGIN_TEMPERATURE', 0.4);
 $aSystems = array(
-    '1204DQ0116' => array('16e7a916d69656e354d00461a4da1d2e40cfa4f1', '12419')
+    '1206DS0163' => array('16e7a916d69656e354d00461a4da1d2e40cfa4f1', '12419')
 );
 
 /* Fake command line for debugging */
 if (count($argv) < 5) {
-    $argv = array(null, 1.5, 1234, 230, '1204DQ0116');
+    $argv = array(null, 1.5, 1234, 230, '1206DS0163');
 }
 
 /* Fetch command line arguments */
