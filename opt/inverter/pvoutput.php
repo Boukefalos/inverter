@@ -1,17 +1,17 @@
 #!/usr/bin/php
 <?php
 require_once 'functions.php';
-require_once 'wunderground.php';
 
-define('STATION', 'INOORDHO4');
 define('RRD_FILE', 'data/inverter_%s_today.rrd');
 define('RRD_FETCH', 'rrdtool fetch %s AVERAGE -r %d -s %d -e %d');
 define('PVOUTPUT_URL', 'http://pvoutput.org/service/r1/addstatus.jsp');
 define('TODAY_FILE', 'data/today_%s.csv');
 define('FIELD', 'PAC');
 define('RESOLUTION', 5);
+define('TRESHOLD_CORRECT', 1);
 define('MARGIN_ENERGY', 0.5);
 define('MARGIN_TEMPERATURE', 0.4);
+
 $aSystems = array(
     '1206DS0163' => array('16e7a916d69656e354d00461a4da1d2e40cfa4f1', '12419')
 );
@@ -28,8 +28,7 @@ $fVoltage = floatval($argv[3]); // V
 $sSerial = $argv[4];
 
 /* Fetch temperature */
-$aData = wunderground('conditions', sprintf('pws:%s', STATION));
-$fTemperature = isset($aData['current_observation']['temp_c']) ? $aData['current_observation']['temp_c'] : null;
+$fTemperature = getTemperature();
 
 /* Fetch twilight data */
 $iDay = date('z');
@@ -79,7 +78,10 @@ $aToday[3] = $fTemperature;
 file_put_contents($sTodayFile, implode(',', $aToday));
 
 /* Correct today data */
-$fToday = abs($aToday[1] - $fToday) > (MARGIN_ENERGY * $aToday[1]) ? $aToday[1] : $fToday;
+$iWake = getWake($aTwilight);
+if (($iTime - $iWake) / 3600 < TRESHOLD_CORRECT && abs($aToday[1] - $fToday) > (MARGIN_ENERGY * $aToday[1])) {
+    $fToday =  $aToday[1];
+}
 
 /* Construct PVOutput data */
 $aData = array(
@@ -95,6 +97,7 @@ if (isset($fTemperature)) {
         $fTemperature = abs($aToday[3] - $fTemperature) > (MARGIN_TEMPERATURE * $aToday[3]) ? $aToday[3] : $fTemperature;
     }
     $aData['v5'] = $fTemperature; // ignore potential flaws in first temperature of the day
+    file_put_contents('temp.csv', sprintf("%d,%f\n", $iTime,$fTemperature), FILE_APPEND);
 }
 
 /* Store debug data */

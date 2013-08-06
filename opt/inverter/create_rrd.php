@@ -13,6 +13,16 @@ $aRRDCreate = array(
     DS:PAC:GAUGE:120:0:U
     DS:ETOTAL:GAUGE:120:0:U
     DS:ETODAY:GAUGE:120:0:U
+    RRA:MIN:0.5:1:720
+    RRA:MIN:0.5:17:1017
+    RRA:MIN:0.5:120:1008
+    RRA:MIN:0.5:535:1002
+    RRA:MIN:0.5:6324:1001
+    RRA:MAX:0.5:1:720
+    RRA:MAX:0.5:17:1017
+    RRA:MAX:0.5:120:1008
+    RRA:MAX:0.5:535:1002
+    RRA:MAX:0.5:6324:1001
     RRA:AVERAGE:0.5:1:720
     RRA:AVERAGE:0.5:17:1017
     RRA:AVERAGE:0.5:120:1008
@@ -54,7 +64,7 @@ foreach (glob($sDataDirectory . '/*.csv') as $sFile) {
         if ($bFirst) {
             foreach ($aRRDCreate as $sRRDFile => $sRRDCreate) {
                 /* Create RRD database */
-                echo $sCommand = str_replace("\n", ' ', sprintf($sRRDCreate, $sRRDFile, $aValues[0] - 1)) . "\n";
+                $sCommand = str_replace("\n", ' ', sprintf($sRRDCreate, $sRRDFile, $aValues[0] - 1)) . "\n";
                 fwrite($rHandle, $sCommand);
             }
             $bFirst = false;
@@ -64,7 +74,7 @@ foreach (glob($sDataDirectory . '/*.csv') as $sFile) {
             /* Update relevant fields in RRD database */
             $aRRDValues = array_intersect_key($aValues, $aRRDKeys[$sRRDFile]);
             $sCommand = sprintf("update %s %d:%s\n", $sRRDFile, $aValues[0], implode(':', $aRRDValues));
-            printf('[%d] %s', $i, $sCommand); 
+            //printf('[%d] %s', $i, $sCommand); 
             fwrite($rHandle, $sCommand);
         }
     }
