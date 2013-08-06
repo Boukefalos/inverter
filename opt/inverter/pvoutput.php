@@ -1,9 +1,9 @@
 #!/usr/bin/php
 <?php
 require_once 'functions.php';
+require_once 'rrd.php';
 
 define('RRD_FILE', 'data/inverter_%s_today.rrd');
-define('RRD_FETCH', 'rrdtool fetch %s AVERAGE -r %d -s %d -e %d');
 define('PVOUTPUT_URL', 'http://pvoutput.org/service/r1/addstatus.jsp');
 define('TODAY_FILE', 'data/today_%s.csv');
 define('FIELD', 'PAC');
@@ -48,11 +48,7 @@ $iLast = $aToday[2];
 
 /* Extract fields */
 $iTime = time();
-$sData = command(sprintf(RRD_FETCH, sprintf(RRD_FILE, $sSerial), RESOLUTION, $iLast, $iTime));
-$aData = explode("\n", trim($sData));
-$aFields = preg_split("~[\s]+~", array_shift($aData));
-array_shift($aData);
-$aFields = array_flip($aFields);
+list($aFields, $aData) = RRD::fetch(sprintf(RRD_FILE, $sSerial), RESOLUTION, $iLast, $iTime, 'AVERAGE');
 
 /* Process data */
 $bFirst = true;
@@ -60,8 +56,7 @@ $fEnergy = 0;
 if (isset($aFields[FIELD])) {
     $iField = $aFields[FIELD] + 1;
     array_shift($aData);
-    foreach ($aData as $sRow) {
-        $aRow = explode(' ', $sRow);
+    foreach ($aData as $aRow) {
         $iDate = substr($aRow[0], 0, -1);
         $iInterval = $bFirst ? (($bFirst = false) || RESOLUTION) : $iDate - $iLast; // s
         if (($fValue = floatval($aRow[$iField])) > 0) { // W

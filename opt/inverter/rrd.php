@@ -9,7 +9,7 @@ class RRD {
     protected static $aPipes = array();
 
     protected function __construct() {
-        self::$rProcess= proc_open('rrdtool -', array(
+        self::$rProcess = proc_open('rrdtool -', array(
            0 => array('pipe', 'r'),
            1 => array('pipe', 'w')), self::$aPipes);
         stream_set_blocking(self::$aPipes[1], false);
@@ -19,7 +19,7 @@ class RRD {
         if (!isset(self::$rProcess)) {
             self::$oInstance = new self();
         }
-        var_dump($sCommand);
+        //echo $sCommand . "\n";
         fwrite(self::$aPipes[0], $sCommand . PHP_EOL);
         $nNull = null;
         $aRead = array(self::$aPipes[1]);
@@ -45,14 +45,17 @@ class RRD {
         $aFields = array_flip($aFields);
         array_shift($aData);
         array_pop($aData);
-        foreach ($aData as $iKey => $sRow) {
+        $aValues = array();
+        foreach ($aData as $sRow) {
             $aRow = explode(':', $sRow);
             $iTime = current($aRow);
-            $mValue = trim(next($aRow));
-            if ($mValue != '-nan') {
-                $aValues[$iTime] = floatval($mValue);
+            $aRow = explode(' ', trim(next($aRow)));
+            foreach ($aRow as $iKey => $mValue) {
+                if (strpos($mValue, 'nan') !== false) {
+                    $aRow[$iKey] = null;
+                }                
             }
-            //$aValues[$iTime] = $fValue == 0 ? null : $fValue;
+            $aValues[$iTime] = $aRow;
         }
         return array($aFields, $aValues);
     }
