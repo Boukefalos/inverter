@@ -8,8 +8,8 @@ define('PVOUTPUT_URL', 'http://pvoutput.org/service/r1/addstatus.jsp');
 define('TODAY_FILE', 'data/today_%s.csv');
 define('FIELD', 'PAC');
 define('RESOLUTION', 5);
-define('TRESHOLD_CORRECT', 1);
-define('MARGIN_ENERGY', 0.5);
+define('TRESHOLD_CORRECT', 3); // h
+define('MARGIN_ENERGY', 0.2);
 define('MARGIN_TEMPERATURE', 0.4);
 
 $aSystems = array(

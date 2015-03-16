@@ -32,7 +32,7 @@ function getTwilight($iYear, $iDay) {
 
 function getWake(&$aTwilight = null) {
     if (!isset($aTwilight)) {
-        $aTwilight = getTwilight(date('Y'), date('z'));
+        $aTwilight = getTwilight(date('Y'), date('z') + 1);
     }
     return strtotime($sWake = isset($aTwilight) ? $aTwilight[1] : DEFAULT_WAKE);
 }
