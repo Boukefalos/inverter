@@ -1,15 +1,16 @@
-#!/usr/bin/php
+#!/usr/local/bin/php
 <?php
 require_once 'functions.php';
 require_once 'daemon.php';
 
-define('NAME', 'inverter');
-define('TASK', '/opt/inverter/inverter.pl > /dev/null');
-define('CWD', '/opt/inverter/');
-
 /* Initialize */
 chdir(CWD);
 daemon_init();
+
+/* Install daemon */
+if (isset($argv[1]) && $argv[1] == 'install') {
+    daemon_install();
+}
 
 /* Remove previous at entries */
 foreach (explode("\n", trim(command('atq 2> /dev/null'))) as $sJob) {

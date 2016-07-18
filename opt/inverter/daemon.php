@@ -1,15 +1,13 @@
 <?php
 require_once 'System/Daemon.php'; // pear install -f System_Daemon
 
+define('NAME', 'inverter');
+define('TASK', '/opt/inverter/inverter.pl > /dev/null');
+define('CWD', '/opt/inverter/');
 define('FILE_DAEMON_START', 'daemon_start.sh');
 define('FILE_DAEMON_STOP', 'daemon_stop.sh');
 define('MODE', 0755);
 define('PROCESS_POLL', 30);
-
-/* Install daemon */
-if (isset($argv[1]) && $argv[1] == 'install') {
-    daemon_install();
-}
 
 function daemon_init() {
     global $sName;
@@ -26,8 +24,10 @@ function daemon_init() {
 }
 
 function daemon_install() {
+    global $argv;
+
     System_Daemon::writeAutoRun(); // update-rc.d %s defaults
-    
+
     /* Write scripts for scheduling with at */
     if (isset($argv[2]) && $argv[2] == 'schedule') {
         if (!file_exists(FILE_DAEMON_START)) {
