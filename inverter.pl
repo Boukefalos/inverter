@@ -318,7 +318,7 @@ $config->define( "data_errmode_index=s"  );
 $config->define( "data_errmode_descr=s"  );
 
 # fill variables by reading configuration file
-$config->file( "config.ini" ) || die "FAILED to open and/or read config file: config.ini\n";
+$config->file( "data/config.ini" ) || die "FAILED to open and/or read config file: config.ini\n";
 
 if ($config->flags_debug) {
   print "debug=" . $config->flags_debug ;

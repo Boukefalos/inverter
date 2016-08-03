@@ -2,7 +2,7 @@
 define('KEY', '2556854ea765c351');
 define('LIMIT_MINUTE', 10);
 define('LIMIT_DAY', 500);
-define('LIMIT_FILE', 'wunderground.json');
+define('LIMIT_FILE', 'data/wunderground.json');
 
 function wunderground($sService, $sQuery, $bDebug = false) {
     /* Get current date values */
@@ -59,7 +59,7 @@ function wunderground($sService, $sQuery, $bDebug = false) {
         'minute' => array($iMinute, $aCount['minute']),
         'day' => array($iDay, $aCount['day']));
     file_put_contents(LIMIT_FILE, json_encode($aJSON));
-    
+
     /* Perform actual call */
     $sUrl = sprintf('http://api.wunderground.com/api/%s/%s/q/%s.json', KEY, $sService, $sQuery);
     $sJSON = file_get_contents($sUrl);

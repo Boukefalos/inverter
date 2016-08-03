@@ -92,11 +92,11 @@ if (isset($fTemperature)) {
         $fTemperature = abs($aToday[3] - $fTemperature) > (MARGIN_TEMPERATURE * $aToday[3]) ? $aToday[3] : $fTemperature;
     }
     $aData['v5'] = $fTemperature; // ignore potential flaws in first temperature of the day
-    file_put_contents('temp.csv', sprintf("%d,%f\n", $iTime, $fTemperature), FILE_APPEND);
+    file_put_contents('data/temp.csv', sprintf("%d,%f\n", $iTime, $fTemperature), FILE_APPEND);
 }
 
 /* Store debug data */
-file_put_contents('pvoutput.debug', json_encode(array($argv, $fEnergy, $aToday, $aData)) . "\n", FILE_APPEND);
+file_put_contents('data/pvoutput.debug', json_encode(array($argv, $fEnergy, $aToday, $aData)) . "\n", FILE_APPEND);
 
 /* Send data to PVOutput */
 if (isset($aSystems[$sSerial])) {
