@@ -2,7 +2,7 @@
 require_once 'System/Daemon.php'; // pear install -f System_Daemon
 
 define('NAME', 'inverter');
-define('TASK', '/opt/inverter/inverter.pl > /dev/null');
+define('TASK', '/opt/inverter/inverter.pl >> /var/log/task.log');
 define('CWD', '/opt/inverter/');
 define('FILE_DAEMON_START', 'daemon_start.sh');
 define('FILE_DAEMON_STOP', 'daemon_stop.sh');
