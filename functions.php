@@ -4,8 +4,8 @@ require_once 'wunderground.php';
 define('DEFAULT_WAKE', '7:00');
 define('DEFAULT_SLEEP', '19:00');
 
-define('TWILIGHT_FILE', 'data/twilight_%d.csv');
-define('STATION', 'INOORDHO4');
+define('TWILIGHT_FILE', 'static/twilight_%d.csv');
+define('STATION', 'IUITGEES3');
 
 function getHour($sTime = null) {
     if (!is_numeric($sTime)) {
