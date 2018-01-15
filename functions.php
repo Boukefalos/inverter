@@ -1,8 +1,8 @@
 <?php
 require_once 'wunderground.php';
 
-define('DEFAULT_WAKE', '7:00');
-define('DEFAULT_SLEEP', '19:00');
+define('DEFAULT_WAKE', '6:00');
+define('DEFAULT_SLEEP', '22:00');
 
 define('TWILIGHT_FILE', 'static/twilight_%d.csv');
 define('STATION', 'IUITGEES3');

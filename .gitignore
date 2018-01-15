@@ -1,1 +1,4 @@
 daemon_*.sh
+config.ini
+data/
+wunderground.json

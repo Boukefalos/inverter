@@ -1,5 +1,6 @@
-#!/usr/local/bin/php
+#!/usr/bin/php
 <?php
+#ja
 require_once 'functions.php';
 require_once 'daemon.php';
 
@@ -25,6 +26,7 @@ foreach (explode("\n", trim(command('atq 2> /dev/null'))) as $sJob) {
 /* Wake at sunrise, sleep at sunset */
 $fWake = getHour(getWake($aTwilight));
 $fSleep = getHour($sSleep = getSleep($aTwilight));
+
 $sWake = $aTwilight[1];
 $sSleep = $aTwilight[3];
 System_Daemon::info(sprintf('Be awake between %s and %s', $sWake, $sSleep));

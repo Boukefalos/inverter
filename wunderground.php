@@ -1,5 +1,5 @@
 <?php
-define('KEY', '2556854ea765c351');
+define('KEY', '');
 define('LIMIT_MINUTE', 10);
 define('LIMIT_DAY', 500);
 define('LIMIT_FILE', 'data/wunderground.json');
