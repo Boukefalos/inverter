@@ -1,8 +1,8 @@
 <?php
-define('KEY', '');
+define('KEY', '2556854ea765c351');
 define('LIMIT_MINUTE', 10);
 define('LIMIT_DAY', 500);
-define('LIMIT_FILE', 'data/wunderground.json');
+define('LIMIT_FILE', '/opt/inverter/data/wunderground.json');
 
 function wunderground($sService, $sQuery, $bDebug = false) {
     /* Get current date values */
