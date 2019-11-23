@@ -1,6 +1,5 @@
 #!/usr/bin/php
 <?php
-#ja
 require_once 'functions.php';
 require_once 'daemon.php';
 

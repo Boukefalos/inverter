@@ -1,10 +1,10 @@
 <?php
-define('KEY', '5fc7ebf9168bfbe9745920438e3b17bf');
+define('KEY', 'e8f868de4eb21a7c6a877f8197cc3ed3');
 define('LIMIT_MINUTE', 10);
 define('LIMIT_DAY', 500);
-define('LIMIT_FILE', '/opt/inverter/data/wunderground.json');
+define('LIMIT_FILE', '/opt/inverter/data/openweathermap.json');
 
-function wunderground($sService, $sQuery, $bDebug = false) {
+function openweathermap($iCity, $bDebug = false) {
     /* Get current date values */
     $iMinute = date('i');
     $iDay = date('z');
@@ -61,7 +61,9 @@ function wunderground($sService, $sQuery, $bDebug = false) {
     file_put_contents(LIMIT_FILE, json_encode($aJSON));
 
     /* Perform actual call */
-    $sUrl = sprintf('http://api.wunderground.com/api/%s/%s/q/%s.json', KEY, $sService, $sQuery);
+    $sUrl = sprintf('https://api.openweathermap.org/data/2.5/weather?id=%d&appid=%s', $iCity, KEY);
+    $sUrl = sprintf('https://api.openweathermap.org/data/2.5/weather?id=%d&appid=%s', $iCity, KEY);
+// $sUrl = 'https://samples.openweathermap.org/data/2.5/weather?q=Uitgeeddst&appid=5fc7ebf9168bfbe9745920438e3b1';
     $sJSON = file_get_contents($sUrl);
     return json_decode($sJSON, true);
 }

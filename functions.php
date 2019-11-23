@@ -1,11 +1,13 @@
 <?php
-require_once 'wunderground.php';
+// require_once 'wunderground.php';
+require_once 'openweathermap.php';
 
 define('DEFAULT_WAKE', '6:00');
 define('DEFAULT_SLEEP', '22:00');
 
 define('TWILIGHT_FILE', 'static/twilight_%d.csv');
-define('STATION', 'IUITGEES3');
+define('STATION', 'INOORDHO104');
+define('CITY', 2745978);
 
 function getHour($sTime = null) {
     if (!is_numeric($sTime)) {
@@ -44,9 +46,11 @@ function getSleep(&$aTwilight = null) {
     return strtotime($sWake = isset($aTwilight) ? $aTwilight[3] : DEFAULT_WAKE);
 }
 
-function getTemperature($sStation = STATION) {
-    $aData = wunderground('conditions', sprintf('pws:%s', STATION));
-    return isset($aData['current_observation']['temp_c']) ? $aData['current_observation']['temp_c'] : null;
+function getTemperature($sStation = STATION, $iCity = CITY) {
+    // $aData = wunderground('conditions', sprintf('pws:%s', STATION));
+    // return isset($aData['current_observation']['temp_c']) ? $aData['current_observation']['temp_c'] : null;
+    $aData = openweathermap(CITY);
+    return isset($aData['main']['temp']) ? floatval($aData['main']['temp']) - 273.15 : null;
 }
 
 function command($sCommand) {
